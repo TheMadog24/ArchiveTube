@@ -1,2 +1,3 @@
 # ArchiveTube
-A self-hosted personal YouTube archive built for offline playback and long-term archiving.
+
+ArchiveTube will be a self-hosted, personal YouTube archive, designed primarily for personal collections.
