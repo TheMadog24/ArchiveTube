@@ -138,3 +138,30 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 prototype/twitch-irc/output/*
+
+
+# Private credentials
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local database and database backups
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+
+# Logs
+logs/
+*.log
+
+# Virtual environments
+.venv/
+venv/
+
+# Operating system files
+.DS_Store
+Thumbs.db
