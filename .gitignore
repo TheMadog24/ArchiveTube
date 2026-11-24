@@ -172,3 +172,10 @@ prototype/twitch-tracker/.env
 prototype/twitch-tracker/data/
 prototype/twitch-tracker/logs/
 prototype/twitch-tracker/.venv/
+
+
+# ArchiveTube Twitch Tracker - Database
+prototype/twitch-tracker/database/*.db
+prototype/twitch-tracker/database/*.db-journal
+prototype/twitch-tracker/database/*.db-wal
+prototype/twitch-tracker/database/*.db-shm
