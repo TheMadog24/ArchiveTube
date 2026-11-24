@@ -1,12 +1,12 @@
 # ArchiveTube
 
-ArchiveTube will be a self-hosted, personal YouTube archive, designed primarily for personal collections.
+ArchiveTube will be a self-hosted, personal YouTube & Twitch archive, designed primarily for personal collections.
 
 Unlike others, ArchiveTube intends to be very user-friendly, focusing on UI and customization.
 
 ## Goals
 
-- Archive YouTube videos and channels with as much metadata as possible.
+- Archive Twitch & YouTube videos and channels with as much metadata as possible.
 - Optional archiving of subtitles and comments
 - Offline viewing
 - Track watch history and stats
@@ -29,3 +29,5 @@ More in-depth plans for each part will be added in `/docs`.
 (will be adding/updating often)
 
 Currently in very early development/planning.
+
+Note: I got tired of writing plans and just started with some prototypes.
