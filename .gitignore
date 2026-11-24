@@ -179,3 +179,6 @@ prototype/twitch-tracker/database/*.db
 prototype/twitch-tracker/database/*.db-journal
 prototype/twitch-tracker/database/*.db-wal
 prototype/twitch-tracker/database/*.db-shm
+
+# ArchiveTube Twitch Tracker - Local testing
+prototype/twitch-tracker/test_twitch.py
