@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ArchiveTube - Twitch Tracker</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- =====================================
+             Global Header
+        ====================================== -->
+
+        <header class="site-header">
+
+            <!-- Top Header -->
+            <div class="header-main">
+
+                <a href="/" class="logo">
+                    <span class="logo-name">ArchiveTube</span>
+                    <span class="logo-section">Twitch Tracker</span>
+                </a>
+
+                <div class="header-actions">
+
+                    <button class="header-button" type="button" title="Search">
+                        <span>Search</span>
+                        <span class="button-icon">⌕</span>
+                    </button>
+
+                    <button class="header-button" type="button" title="Settings">
+                        <span>Settings</span>
+                        <span class="button-icon">⚙</span>
+                    </button>
+
+                    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme"
+                        title="Toggle theme">
+                        <span class="button-icon theme-icon">☾</span>
+                        <span class="theme-label">Dark Mode</span>
+                    </button>
+
+                    <button class="user-button" type="button" title="User Account">
+                        <span class="user-icon">👤</span>
+                        <span>Login</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Main Navigation -->
+            <nav class="main-navigation">
+
+                <div class="sidebar-toggle-container">
+                    <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar"
+                        title="Toggle sidebar">
+                        ☰
+                    </button>
+                </div>
+
+                <div class="main-nav-links">
+
+                    <a href="/" class="main-nav-item">Home</a>
+                    <a href="/dashboard" class="main-nav-item active">Dashboard</a>
+                    <a href="#" class="main-nav-item">Channels</a>
+                    <a href="#" class="main-nav-item">Live Streams</a>
+                    <a href="#" class="main-nav-item">Videos</a>
+                    <a href="#" class="main-nav-item">Statistics</a>
+
+                </div>
+
+                <div class="platform-switch">
+
+                    <span class="platform-label">Switch to</span>
+
+                    <a href="#" class="switch-button">
+                        YouTube ↗
+                    </a>
+
+                </div>
+
+            </nav>
+
+        </header>
+
+
+        <!-- =====================================
+             Page Layout
+        ====================================== -->
+
+        <div class="page-container">
+
+
+            <!-- Dashboard Sidebar -->
+            <aside class="sidebar">
+
+                <div class="sidebar-heading">
+                    Dashboard
+                </div>
+
+                <nav class="sidebar-navigation">
+
+                    <a href="#overview" class="sidebar-item active">
+                        Overview
+                    </a>
+
+                    <a href="#live-channels" class="sidebar-item">
+                        Live Channels
+                    </a>
+
+                    <a href="#recent-activity" class="sidebar-item">
+                        Recent Activity
+                    </a>
+
+                    <a href="#viewer-statistics" class="sidebar-item">
+                        Viewer Statistics
+                    </a>
+
+                </nav>
+
+            </aside>
+
+
+            <!-- =====================================
+                 Main Content
+            ====================================== -->
+
+            <main class="main-content">
+
+                <div class="page-heading">
+
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p>Overview of your tracked Twitch channels.</p>
+                    </div>
+
+                    <div class="tracker-status">
+                        <span class="status-indicator"></span>
+                        Tracker: <strong>Not Connected</strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Overview Statistics -->
+                <section class="dashboard-section" id="overview">
+
+                    <div class="section-heading">
+                        <h2>Overview</h2>
+                    </div>
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card">
+                            <span class="stat-label">Tracked Channels</span>
+                            <span class="stat-value">0</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Currently Live</span>
+                            <span class="stat-value">0</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Streams Recorded</span>
+                            <span class="stat-value">0</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Total Viewers</span>
+                            <span class="stat-value">0</span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Live Channels -->
+                <section class="dashboard-section" id="live-channels">
+
+                    <div class="section-heading">
+                        <h2>Currently Live</h2>
+                        <a href="#" class="section-link">View All</a>
+                    </div>
+
+                    <div class="empty-state">
+                        <p>No live channels to display.</p>
+                    </div>
+
+                </section>
+
+
+                <!-- Recent Activity -->
+                <section class="dashboard-section" id="recent-activity">
+
+                    <div class="section-heading">
+                        <h2>Recent Activity</h2>
+                        <a href="#" class="section-link">View All</a>
+                    </div>
+
+                    <div class="empty-state">
+                        <p>No recent activity yet.</p>
+                    </div>
+
+                </section>
+
+
+                <!-- Viewer Statistics -->
+                <section class="dashboard-section" id="viewer-statistics">
+
+                    <div class="section-heading">
+                        <h2>Viewer Statistics</h2>
+                    </div>
+
+                    <div class="empty-state">
+                        <p>Viewer graphs and historical statistics will appear here.</p>
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+</body>
+
+</html>
