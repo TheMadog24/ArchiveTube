@@ -12,6 +12,8 @@ function applyTheme(theme) {
         themeIcon.textContent = "☾";
         themeLabel.textContent = "Dark Mode";
     }
+
+    document.dispatchEvent(new Event("themeChanged"));
 }
 
 // Load the saved theme, or use dark mode by default.

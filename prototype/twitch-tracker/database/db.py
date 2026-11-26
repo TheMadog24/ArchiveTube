@@ -55,6 +55,25 @@ def initialize_database():
             )
         """)
 
+        # Store long-term daily API usage summaries.
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS api_usage_daily (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date_utc TEXT NOT NULL,
+                endpoint TEXT NOT NULL,
+                request_count INTEGER NOT NULL DEFAULT 0,
+                success_count INTEGER NOT NULL DEFAULT 0,
+                failure_count INTEGER NOT NULL DEFAULT 0,
+                unauthorized_count INTEGER NOT NULL DEFAULT 0,
+                rate_limited_count INTEGER NOT NULL DEFAULT 0,
+                total_duration_ms INTEGER NOT NULL DEFAULT 0,
+                max_duration_ms INTEGER,
+                min_rate_limit_remaining INTEGER,
+                rate_limit_limit INTEGER,
+                UNIQUE(date_utc, endpoint)
+            )
+        """)
+
         connection.commit()
 
     finally:
@@ -164,6 +183,385 @@ def record_api_usage(
         )
 
         connection.commit()
+
+    finally:
+        connection.close()
+
+
+def get_api_usage_summary():
+    """Return overall Twitch API usage statistics."""
+
+    connection = get_connection()
+
+    try:
+        row = connection.execute("""
+            WITH all_usage AS (
+                SELECT
+                    request_count,
+                    success_count,
+                    failure_count,
+                    unauthorized_count,
+                    rate_limited_count,
+                    total_duration_ms,
+                    max_duration_ms
+                FROM api_usage
+
+                UNION ALL
+
+                SELECT
+                    request_count,
+                    success_count,
+                    failure_count,
+                    unauthorized_count,
+                    rate_limited_count,
+                    total_duration_ms,
+                    max_duration_ms
+                FROM api_usage_daily
+            )
+            SELECT
+                COALESCE(SUM(request_count), 0) AS total_requests,
+                COALESCE(SUM(success_count), 0) AS successful_requests,
+                COALESCE(SUM(failure_count), 0) AS failed_requests,
+                COALESCE(SUM(unauthorized_count), 0)
+                    AS unauthorized_requests,
+                COALESCE(SUM(rate_limited_count), 0)
+                    AS rate_limited_requests,
+                COALESCE(SUM(total_duration_ms), 0)
+                    AS total_duration_ms,
+                MAX(max_duration_ms) AS max_duration_ms
+            FROM all_usage
+        """).fetchone()
+
+        return dict(row)
+
+    finally:
+        connection.close()
+
+
+def get_api_usage_by_endpoint(period="24h"):
+    """Return Twitch API usage grouped by endpoint for a selected period."""
+
+    valid_periods = ("24h", "7d", "30d", "12m", "all")
+
+    if period not in valid_periods:
+        raise ValueError("Invalid time period.")
+
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            """
+            WITH all_usage AS (
+                SELECT
+                    endpoint,
+                    minute_utc AS usage_time,
+                    request_count,
+                    success_count,
+                    failure_count,
+                    total_duration_ms,
+                    max_duration_ms
+                FROM api_usage
+
+                UNION ALL
+
+                SELECT
+                    endpoint,
+                    date_utc AS usage_time,
+                    request_count,
+                    success_count,
+                    failure_count,
+                    total_duration_ms,
+                    max_duration_ms
+                FROM api_usage_daily
+            )
+            SELECT
+                endpoint,
+                SUM(request_count) AS total_requests,
+                SUM(success_count) AS successful_requests,
+                SUM(failure_count) AS failed_requests,
+                SUM(total_duration_ms) AS total_duration_ms,
+                MAX(max_duration_ms) AS max_duration_ms
+            FROM all_usage
+            WHERE
+                CASE
+                    WHEN ? = '24h'
+                        THEN usage_time >= strftime('%Y-%m-%dT%H:%MZ', 'now', '-24 hours')
+                    WHEN ? = '7d'
+                        THEN usage_time >= strftime('%Y-%m-%dT%H:%MZ', 'now', '-7 days')
+                    WHEN ? = '30d'
+                        THEN usage_time >= strftime('%Y-%m-%d', 'now', '-30 days')
+                    WHEN ? = '12m'
+                        THEN usage_time >= strftime('%Y-%m-%d', 'now', '-12 months')
+                    ELSE 1
+                END
+            GROUP BY endpoint
+            ORDER BY total_requests DESC
+        """,
+            (period, period, period, period),
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    finally:
+        connection.close()
+
+
+def get_api_usage_history(period="24h", endpoint=None):
+    """Return API usage history grouped into appropriate time buckets."""
+
+    valid_periods = {"24h", "7d", "30d", "12m", "all"}
+
+    if period not in valid_periods:
+        raise ValueError("Invalid API usage history period.")
+
+    connection = get_connection()
+
+    try:
+        if period == "24h":
+            query = """
+                SELECT
+                    minute_utc AS period,
+                    SUM(request_count) AS total_requests,
+                    SUM(success_count) AS successful_requests,
+                    SUM(failure_count) AS failed_requests,
+                    SUM(total_duration_ms) AS total_duration_ms
+                FROM api_usage
+                WHERE minute_utc >= strftime(
+                    '%Y-%m-%dT%H:%MZ',
+                    'now',
+                    '-24 hours'
+                )
+            """
+
+            parameters = []
+
+            if endpoint is not None:
+                query += " AND endpoint = ?"
+                parameters.append(endpoint)
+
+            query += """
+                GROUP BY minute_utc
+                ORDER BY minute_utc ASC
+            """
+
+        else:
+            if period == "7d":
+                cutoff = "-7 days"
+                bucket = "%Y-%m-%dT%H"
+            elif period == "30d":
+                cutoff = "-30 days"
+                bucket = "%Y-%m-%d"
+            elif period == "12m":
+                cutoff = "-12 months"
+                bucket = "%Y-%m-%d"
+            else:
+                cutoff = None
+                bucket = "%Y-%m-%d"
+
+            query = """
+                WITH all_usage AS (
+                    SELECT
+                        minute_utc AS recorded_at,
+                        endpoint,
+                        request_count,
+                        success_count,
+                        failure_count,
+                        total_duration_ms
+                    FROM api_usage
+
+                    UNION ALL
+
+                    SELECT
+                        date_utc AS recorded_at,
+                        endpoint,
+                        request_count,
+                        success_count,
+                        failure_count,
+                        total_duration_ms
+                    FROM api_usage_daily
+                )
+                SELECT
+                    strftime(?, recorded_at) AS period,
+                    SUM(request_count) AS total_requests,
+                    SUM(success_count) AS successful_requests,
+                    SUM(failure_count) AS failed_requests,
+                    SUM(total_duration_ms) AS total_duration_ms
+                FROM all_usage
+            """
+
+            parameters = [bucket]
+
+            if cutoff is not None:
+                query += """
+                    WHERE recorded_at >= strftime('%Y-%m-%dT%H:%MZ', 'now', ?)
+                """
+                parameters.append(cutoff)
+
+            if endpoint is not None:
+                query += (
+                    " AND endpoint = ?" if cutoff is not None else " WHERE endpoint = ?"
+                )
+                parameters.append(endpoint)
+
+            query += """
+                GROUP BY period
+                ORDER BY period ASC
+            """
+
+        rows = connection.execute(query, parameters).fetchall()
+
+        return [dict(row) for row in rows]
+
+    finally:
+        connection.close()
+
+
+def get_api_rate_limit_history(hours=24):
+    """Return rate-limit information over a time period."""
+
+    if not isinstance(hours, int) or isinstance(hours, bool) or hours < 1:
+        raise ValueError("Hours must be a positive integer.")
+
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            """
+            SELECT
+                minute_utc,
+                MIN(min_rate_limit_remaining) AS remaining,
+                MAX(rate_limit_limit) AS rate_limit,
+                MAX(rate_limit_reset) AS reset_timestamp
+            FROM api_usage
+            WHERE minute_utc >= strftime(
+                '%Y-%m-%dT%H:%MZ',
+                'now',
+                ?
+            )
+            AND min_rate_limit_remaining IS NOT NULL
+            GROUP BY minute_utc
+            ORDER BY minute_utc ASC
+        """,
+            (f"-{hours} hours",),
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    finally:
+        connection.close()
+
+
+def archive_old_api_usage(days):
+    """Move old minute-level API usage into daily summaries."""
+
+    if not isinstance(days, int) or isinstance(days, bool) or days < 1:
+        raise ValueError("Days must be a positive integer.")
+
+    connection = get_connection()
+
+    try:
+        # Start a transaction so archiving and deletion happen together.
+        connection.execute("BEGIN IMMEDIATE")
+
+        # Find older records and group them by UTC date and endpoint.
+        rows = connection.execute(
+            """
+            SELECT
+                date(minute_utc) AS date_utc,
+                endpoint,
+                SUM(request_count) AS request_count,
+                SUM(success_count) AS success_count,
+                SUM(failure_count) AS failure_count,
+                SUM(unauthorized_count) AS unauthorized_count,
+                SUM(rate_limited_count) AS rate_limited_count,
+                SUM(total_duration_ms) AS total_duration_ms,
+                MAX(max_duration_ms) AS max_duration_ms,
+                MIN(min_rate_limit_remaining)
+                    AS min_rate_limit_remaining,
+                MAX(rate_limit_limit) AS rate_limit_limit
+            FROM api_usage
+            WHERE minute_utc < strftime(
+                '%Y-%m-%dT%H:%MZ',
+                'now',
+                ?
+            )
+            GROUP BY date(minute_utc), endpoint
+            """,
+            (f"-{days} days",),
+        ).fetchall()
+
+        # Save the daily summaries.
+        for row in rows:
+            connection.execute(
+                """
+                INSERT INTO api_usage_daily (
+                    date_utc,
+                    endpoint,
+                    request_count,
+                    success_count,
+                    failure_count,
+                    unauthorized_count,
+                    rate_limited_count,
+                    total_duration_ms,
+                    max_duration_ms,
+                    min_rate_limit_remaining,
+                    rate_limit_limit
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+                ON CONFLICT(date_utc, endpoint)
+                DO UPDATE SET
+                    request_count = request_count + excluded.request_count,
+                    success_count = success_count + excluded.success_count,
+                    failure_count = failure_count + excluded.failure_count,
+                    unauthorized_count = unauthorized_count
+                        + excluded.unauthorized_count,
+                    rate_limited_count = rate_limited_count
+                        + excluded.rate_limited_count,
+                    total_duration_ms = total_duration_ms
+                        + excluded.total_duration_ms,
+                    max_duration_ms = MAX(
+                        max_duration_ms,
+                        excluded.max_duration_ms
+                    ),
+                    min_rate_limit_remaining = CASE
+                        WHEN excluded.min_rate_limit_remaining IS NULL
+                        THEN min_rate_limit_remaining
+                        WHEN min_rate_limit_remaining IS NULL
+                        THEN excluded.min_rate_limit_remaining
+                        ELSE MIN(
+                            min_rate_limit_remaining,
+                            excluded.min_rate_limit_remaining
+                        )
+                    END,
+                    rate_limit_limit = MAX(
+                        rate_limit_limit,
+                        excluded.rate_limit_limit
+                    )
+                """,
+                tuple(row),
+            )
+
+        # Delete minute-level records only after summaries are saved.
+        connection.execute(
+            """
+            DELETE FROM api_usage
+            WHERE minute_utc < strftime(
+                '%Y-%m-%dT%H:%MZ',
+                'now',
+                ?
+            )
+            """,
+            (f"-{days} days",),
+        )
+
+        connection.commit()
+
+        return len(rows)
+
+    except sqlite3.Error:
+        connection.rollback()
+        raise
 
     finally:
         connection.close()

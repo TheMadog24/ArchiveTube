@@ -124,6 +124,10 @@
                         Viewer Statistics
                     </a>
 
+                    <a href="#api-usage" class="sidebar-item">
+                        API Usage
+                    </a>
+
                 </nav>
 
             </aside>
@@ -214,6 +218,7 @@
                 </section>
 
 
+
                 <!-- Viewer Statistics -->
                 <section class="dashboard-section" id="viewer-statistics">
 
@@ -227,14 +232,142 @@
 
                 </section>
 
+
+                <!-- API Usage -->
+                <section class="dashboard-section" id="api-usage">
+
+                    <div class="section-heading">
+                        <h2>API Usage</h2>
+                    </div>
+
+
+
+                    <!-- API Usage Over Time -->
+                    <div class="section-heading">
+                        <h3>API Usage Over Time</h3>
+
+                        <div class="chart-options">
+                            <div class="line-style-control">
+                                <span>Line Style:</span>
+
+                                <div class="line-style-buttons">
+                                    <button type="button" class="line-style-button active" data-line-style="curved">
+                                        Curved
+                                    </button>
+
+                                    <button type="button" class="line-style-button" data-line-style="straight">
+                                        Straight
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+
+                        <div class="chart-toolbar">
+                            <select id="usage-period" class="control-select">
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="12m">Last 12 Months</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+
+                        <canvas id="usage-history-chart"></canvas>
+
+                        <div class="chart-controls">
+                            <button type="button" id="usage-zoom-in">+</button>
+                            <button type="button" id="usage-zoom-out">−</button>
+                            <button type="button" id="usage-zoom-reset">Reset</button>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card">
+                            <span class="stat-label">Total Requests</span>
+                            <span class="stat-value">{{ usage_summary.total_requests }}</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Successful Requests</span>
+                            <span class="stat-value">{{ usage_summary.successful_requests }}</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Failed Requests</span>
+                            <span class="stat-value">{{ usage_summary.failed_requests }}</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <span class="stat-label">Rate-Limited Requests</span>
+                            <span class="stat-value">{{ usage_summary.rate_limited_requests }}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="section-heading">
+                        <h3>Requests by Endpoint</h3>
+                    </div>
+
+                    <div class="chart-container endpoint-chart-container">
+
+                        <div class="chart-toolbar">
+                            <select id="endpoint-usage-period" class="control-select">
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="12m">Last 12 Months</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+
+                        <div id="endpoint-usage-legend"></div>
+
+                        <div class="endpoint-chart-track">
+                            <canvas id="usage-endpoint-chart"></canvas>
+                        </div>
+
+                    </div>
+
+                    <div class="stats-grid">
+
+                        {% for item in usage_by_endpoint %}
+                        <div class="stat-card">
+                            <span class="stat-label">{{ item.endpoint }}</span>
+                            <span class="stat-value">{{ item.total_requests }}</span>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <p>No API requests recorded yet.</p>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
             </main>
+
 
         </div>
 
     </div>
 
 
+    <!-- Chart Libraries -->
+    <script src="{{ url_for('static', filename='vendor/chartjs/hammer.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/chartjs/chartjs-plugin-zoom.min.js') }}"></script>
+
+    <!-- ArchiveTube Scripts -->
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-usage.js') }}"></script>
 
 </body>
 
