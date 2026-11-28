@@ -6,10 +6,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const searchInput = document.getElementById("channel-twitch-search");
     const searchButton = document.getElementById("channel-twitch-search-button");
+    const clearButton = document.getElementById("channel-twitch-clear-button");
     const searchResults = document.getElementById("channel-search-results");
     const selectionPreview = document.getElementById("channel-selection-preview");
 
     let selectedChannel = null;
+
+    // Clear the current search and selected channel.
+    function clearChannelSearch() {
+        selectedChannel = null;
+        searchInput.value = "";
+        searchResults.replaceChildren();
+        selectionPreview.replaceChildren();
+    }
 
     if (!addChannelButton || !addChannelPanel) {
         return;
@@ -24,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeChannelButton) {
         closeChannelButton.addEventListener("click", () => {
             addChannelPanel.hidden = true;
+            clearChannelSearch();
         });
     }
 
@@ -89,6 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Search Twitch for channels.
     async function searchTwitchChannels() {
+        selectedChannel = null;
+        selectionPreview.replaceChildren();
+
         const query = searchInput.value.trim();
 
         if (!query) {
@@ -172,6 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
             searchButton.disabled = false;
         }
     }
+
+    // Clear search and selection.
+    clearButton.addEventListener("click", clearChannelSearch);
 
     // Search button.
     searchButton.addEventListener("click", searchTwitchChannels);
