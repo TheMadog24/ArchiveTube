@@ -45,14 +45,42 @@
         <h2>Channel Library</h2>
     </div>
 
-    <div class="channel-filter">
-        <label for="channel-filter">Filter channels</label>
+    <div class="channel-library-toolbar">
 
-        <input type="search" id="channel-filter" class="control-input channel-search-input"
-            placeholder="Filter by channel name, game, status..." autocomplete="off">
+        <div class="channel-filter">
+            <label for="channel-filter">Filter channels</label>
+
+            <input type="search" id="channel-filter" class="control-input channel-search-input"
+                placeholder="Filter by channel name, game, status..." autocomplete="off">
+        </div>
+
+        <div class="control-button-group channel-view-toggle">
+            <button type="button" class="control-button active" data-view="grid" id="channel-grid-view"
+                aria-label="Grid view" title="Grid view">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="3" width="8" height="8" rx="1" />
+                    <rect x="13" y="3" width="8" height="8" rx="1" />
+                    <rect x="3" y="13" width="8" height="8" rx="1" />
+                    <rect x="13" y="13" width="8" height="8" rx="1" />
+                </svg>
+            </button>
+
+            <button type="button" class="control-button" data-view="list" id="channel-list-view" aria-label="List view"
+                title="List view">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <line x1="9" y1="6" x2="21" y2="6" />
+                    <line x1="9" y1="12" x2="21" y2="12" />
+                    <line x1="9" y1="18" x2="21" y2="18" />
+                    <circle cx="4" cy="6" r="1" />
+                    <circle cx="4" cy="12" r="1" />
+                    <circle cx="4" cy="18" r="1" />
+                </svg>
+            </button>
+        </div>
+
     </div>
 
-    <div id="channel-list">
+    <div id="channel-list" class="channel-library-grid">
         <div class="empty-state">
             <p>Your channel library is empty. Add a Twitch channel or archive content from a channel to get started.</p>
         </div>

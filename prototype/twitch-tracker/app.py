@@ -1,10 +1,14 @@
 import os
 
 from database.db import (
+    add_channel,
     get_api_usage_by_endpoint,
     get_api_usage_history,
     get_api_usage_summary,
+    get_channel,
+    get_channels,
     initialize_database,
+    remove_channel,
 )
 from flask import Flask, jsonify, render_template, request
 from twitch_api.client import search_channels
@@ -34,6 +38,34 @@ def dashboard():
 def channels():
     return render_template(
         "channels.html",
+        active_page="channels",
+    )
+
+
+@app.route("/channels/<int:channel_id>")
+def channel_detail(channel_id):
+    channel = get_channel(channel_id)
+
+    if channel is None:
+        return "Channel not found.", 404
+
+    return render_template(
+        "channel.html",
+        channel=channel,
+        active_page="channels",
+    )
+
+
+@app.route("/channels/<int:channel_id>/manage")
+def manage_channel(channel_id):
+    channel = get_channel(channel_id)
+
+    if channel is None:
+        return "Channel not found.", 404
+
+    return render_template(
+        "channel_manage.html",
+        channel=channel,
         active_page="channels",
     )
 
@@ -84,6 +116,60 @@ def search_twitch_channels():
 
     except (RuntimeError, TimeoutError) as error:
         return jsonify({"error": str(error)}), 502
+
+
+@app.route("/api/channels", methods=["POST"])
+def create_channel():
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid request data."}), 400
+
+    twitch_user_id = data.get("id")
+    username = data.get("broadcaster_login")
+    display_name = data.get("display_name")
+    profile_image_url = data.get("thumbnail_url")
+
+    if not twitch_user_id or not username or not display_name:
+        return jsonify({"error": "Missing required channel information."}), 400
+
+    added = add_channel(
+        twitch_user_id=twitch_user_id,
+        username=username,
+        display_name=display_name,
+        profile_image_url=profile_image_url,
+    )
+
+    if not added:
+        return jsonify({"error": "This channel is already in your library."}), 409
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "Channel added to your library.",
+        }
+    ), 201
+
+
+@app.route("/api/channels")
+def list_channels():
+    channels = get_channels()
+    return jsonify(channels)
+
+
+@app.route("/api/channels/<int:channel_id>", methods=["DELETE"])
+def delete_channel(channel_id):
+    removed = remove_channel(channel_id)
+
+    if not removed:
+        return jsonify({"error": "Channel not found in your library."}), 404
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "Channel removed from your library.",
+        }
+    )
 
 
 if __name__ == "__main__":

@@ -32,6 +32,19 @@ def initialize_database():
             )
         """)
 
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS channels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                twitch_user_id TEXT NOT NULL UNIQUE,
+                username TEXT NOT NULL,
+                display_name TEXT NOT NULL,
+                profile_image_url TEXT,
+                tracking_enabled INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+
         # Remove the old individual-request log table.
         # It contains no useful data yet.
 
@@ -562,6 +575,129 @@ def archive_old_api_usage(days):
     except sqlite3.Error:
         connection.rollback()
         raise
+
+    finally:
+        connection.close()
+
+
+def add_channel(
+    twitch_user_id,
+    username,
+    display_name,
+    profile_image_url=None,
+):
+    """Add a Twitch channel to the ArchiveTube library."""
+
+    now = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+    connection = get_connection()
+
+    try:
+        cursor = connection.execute(
+            """
+            INSERT INTO channels (
+                twitch_user_id,
+                username,
+                display_name,
+                profile_image_url,
+                created_at,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(twitch_user_id) DO NOTHING
+            """,
+            (
+                twitch_user_id,
+                username,
+                display_name,
+                profile_image_url,
+                now,
+                now,
+            ),
+        )
+
+        connection.commit()
+
+        return cursor.rowcount == 1
+
+    finally:
+        connection.close()
+
+
+def get_channels():
+    """Return all channels in the ArchiveTube library."""
+
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            """
+            SELECT
+                id,
+                twitch_user_id,
+                username,
+                display_name,
+                profile_image_url,
+                tracking_enabled,
+                created_at,
+                updated_at
+            FROM channels
+            ORDER BY display_name COLLATE NOCASE ASC
+            """
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    finally:
+        connection.close()
+
+
+def get_channel(channel_id):
+    """Return a single channel from the ArchiveTube library."""
+
+    connection = get_connection()
+
+    try:
+        row = connection.execute(
+            """
+            SELECT
+                id,
+                twitch_user_id,
+                username,
+                display_name,
+                profile_image_url,
+                tracking_enabled,
+                created_at,
+                updated_at
+            FROM channels
+            WHERE id = ?
+            """,
+            (channel_id,),
+        ).fetchone()
+
+        return dict(row) if row else None
+
+    finally:
+        connection.close()
+
+
+def remove_channel(channel_id):
+    """Remove a channel from the ArchiveTube library."""
+
+    connection = get_connection()
+
+    try:
+        cursor = connection.execute(
+            """
+            DELETE FROM channels
+            WHERE id = ?
+            """,
+            (channel_id,),
+        )
+
+        connection.commit()
+
+        return cursor.rowcount == 1
 
     finally:
         connection.close()

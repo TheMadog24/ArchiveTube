@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% set active_page = "channels" %}
+
+{% block title %}ArchiveTube - {{ channel.display_name }}{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-heading">{{ channel.display_name }}</div>
+
+<nav class="sidebar-navigation">
+    <a href="/channels" class="sidebar-item">Channel Library</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>{{ channel.display_name }}</h1>
+        <p>@{{ channel.username }}</p>
+    </div>
+</div>
+
+<section class="dashboard-section">
+    <div class="empty-state">
+        <p>Channel page coming soon.</p>
+        <p>This is where channel information, streams, videos, clips, and other archived content will appear.</p>
+    </div>
+</section>
+
+{% endblock %}

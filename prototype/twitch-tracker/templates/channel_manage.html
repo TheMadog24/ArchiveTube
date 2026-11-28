@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% set active_page = "channels" %}
+
+{% block title %}ArchiveTube - Manage {{ channel.display_name }}{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-heading">Manage Channel</div>
+
+<nav class="sidebar-navigation">
+    <a href="/channels/{{ channel.id }}" class="sidebar-item">
+        View Channel
+    </a>
+    <a href="/channels" class="sidebar-item">
+        Channel Library
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Manage {{ channel.display_name }}</h1>
+        <p>Channel settings and management.</p>
+    </div>
+</div>
+
+<section class="dashboard-section">
+    <div class="empty-state">
+        <p>Channel management coming soon.</p>
+        <p>This is where tracking settings, polling intervals, timezone overrides, and channel removal will eventually
+            live.</p>
+    </div>
+</section>
+
+{% endblock %}
