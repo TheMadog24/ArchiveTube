@@ -1,467 +1,338 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% set active_page = "home" %}
 
-    <title>ArchiveTube - Twitch Tracker</title>
+{% block title %}ArchiveTube - Twitch Tracker{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
 
-<body>
+{% block sidebar %}
 
-    <div class="app-container">
+<!-- Home -->
+<div class="sidebar-navigation">
 
-        <!-- =====================================
-             Global Header
-        ====================================== -->
+    <a href="/" class="sidebar-item active">
+        <span class="sidebar-icon">⌂</span>
+        Home
+    </a>
 
-        <header class="site-header">
+</div>
 
-            <!-- Top Header -->
-            <div class="header-main">
 
+<!-- Live Channels -->
+<div class="sidebar-section">
 
-                <a href="/" class="logo">
-                    <span class="logo-name">ArchiveTube</span>
-                    <span class="logo-section">Twitch Tracker</span>
-                </a>
+    <div class="sidebar-heading">
+        Live Now
+    </div>
 
-                <div class="header-actions">
+    <nav class="sidebar-navigation">
 
-                    <button class="header-button" type="button" title="Search">
-                        <span>Search</span>
-                        <span class="button-icon">⌕</span>
-                    </button>
+        <a href="#" class="sidebar-item">
+            <span class="live-indicator"></span>
+            ExampleChannelA
+        </a>
 
-                    <button class="header-button" type="button" title="Settings">
-                        <span>Settings</span>
-                        <span class="button-icon">⚙</span>
-                    </button>
+        <a href="#" class="sidebar-item">
+            <span class="live-indicator"></span>
+            ExampleChannelB
+        </a>
 
-                    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme"
-                        title="Toggle theme">
-                        <span class="button-icon theme-icon">☾</span>
-                        <span class="theme-label">Light Mode</span>
-                    </button>
+    </nav>
 
-                    <button class="user-button" type="button" title="User Account">
-                        <span class="user-icon">👤</span>
-                        <span>Login</span>
-                    </button>
+</div>
 
-                </div>
 
-            </div>
+<!-- Tracked Channels -->
+<div class="sidebar-section">
 
+    <div class="sidebar-heading">
+        Channels
+    </div>
 
-            <!-- Main Navigation -->
-            <nav class="main-navigation">
+    <nav class="sidebar-navigation">
 
-                <div class="sidebar-toggle-container">
-                    <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar"
-                        title="Toggle sidebar">
-                        ☰
-                    </button>
-                </div>
+        <a href="#" class="sidebar-item">
+            <span class="channel-avatar">A</span>
+            ExampleChannelA
+        </a>
 
-                <div class="main-nav-links">
+        <a href="#" class="sidebar-item">
+            <span class="channel-avatar">B</span>
+            ExampleChannelB
+        </a>
 
-                    <a href="/" class="main-nav-item active">Home</a>
-                    <a href="/dashboard" class="main-nav-item">Dashboard</a>
-                    <a href="#" class="main-nav-item">Channels</a>
-                    <a href="#" class="main-nav-item">Live Streams</a>
-                    <a href="#" class="main-nav-item">Videos</a>
-                    <a href="#" class="main-nav-item">Statistics</a>
+        <a href="#" class="sidebar-item">
+            <span class="channel-avatar">C</span>
+            ExampleChannelC
+        </a>
 
-                </div>
+        <a href="#" class="sidebar-item">
+            <span class="channel-avatar">D</span>
+            ExampleChannelD
+        </a>
 
-                <div class="platform-switch">
+    </nav>
 
-                    <span class="platform-label">Switch to</span>
+</div>
 
-                    <a href="#" class="switch-button">
-                        YouTube ↗
-                    </a>
+{% endblock %}
 
-                </div>
 
-            </nav>
+{% block content %}
 
-        </header>
+<div class="page-heading">
+    <div>
+        <h1>Home</h1>
+        <p>Recent content from your tracked Twitch channels.</p>
+    </div>
+</div>
 
 
-        <!-- =====================================
-             Page Layout
-        ====================================== -->
+<!-- All Channel Content -->
 
-        <div class="page-container">
+<div class="channels-feed">
 
 
-            <!-- Dashboard Sidebar -->
+    <!-- Channel A -->
 
-            <aside class="sidebar">
+    <section class="channel-content-section">
 
-                <!-- Home -->
-                <div class="sidebar-navigation">
+        <div class="channel-content-header">
 
-                    <a href="/" class="sidebar-item active">
-                        <span class="sidebar-icon">⌂</span>
-                        Home
-                    </a>
+            <a href="#" class="channel-profile-link">
+                <span class="channel-avatar large">A</span>
+                <span class="channel-profile-name">ExampleChannelA</span>
+            </a>
 
-                </div>
-
-
-                <!-- Live Channels -->
-                <div class="sidebar-section">
-
-                    <div class="sidebar-heading">
-                        Live Now
-                    </div>
-
-                    <nav class="sidebar-navigation">
-
-                        <a href="#" class="sidebar-item">
-                            <span class="live-indicator"></span>
-                            ExampleChannelA
-                        </a>
-
-                        <a href="#" class="sidebar-item">
-                            <span class="live-indicator"></span>
-                            ExampleChannelB
-                        </a>
-
-                    </nav>
-
-                </div>
-
-
-                <!-- Tracked Channels -->
-                <div class="sidebar-section">
-
-                    <div class="sidebar-heading">
-                        Channels
-                    </div>
-
-                    <nav class="sidebar-navigation">
-
-                        <a href="#" class="sidebar-item">
-                            <span class="channel-avatar">A</span>
-                            ExampleChannelA
-                        </a>
-
-                        <a href="#" class="sidebar-item">
-                            <span class="channel-avatar">B</span>
-                            ExampleChannelB
-                        </a>
-
-                        <a href="#" class="sidebar-item">
-                            <span class="channel-avatar">C</span>
-                            ExampleChannelC
-                        </a>
-
-                        <a href="#" class="sidebar-item">
-                            <span class="channel-avatar">D</span>
-                            ExampleChannelD
-                        </a>
-
-                    </nav>
-
-                </div>
-
-            </aside>
-
-
-
-            <!-- =====================================
-                 Main Content
-            ====================================== -->
-
-
-
-            <main class="main-content">
-
-                <div class="page-heading">
-                    <div>
-                        <h1>Home</h1>
-                        <p>Recent content from your tracked Twitch channels.</p>
-                    </div>
-                </div>
-
-
-
-                <!-- ========================================
-                All Channel Content
-                ========================================= -->
-
-                <div class="channels-feed">
-
-
-                    <!-- ========================================
-                    Channel A
-                    ========================================= -->
-
-                    <section class="channel-content-section">
-
-                        <div class="channel-content-header">
-
-                            <a href="#" class="channel-profile-link">
-                                <span class="channel-avatar large">A</span>
-                                <span class="channel-profile-name">ExampleChannelA</span>
-                            </a>
-
-                            <a href="#" class="section-link">Tracking &amp; Data →</a>
-
-                        </div>
-
-
-                        <!-- Recent Streams -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Streams</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 13) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail">
-                                        STREAM {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelA - Stream {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 2 + i }} hours</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Recent Clips -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Clips</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 11) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail clip-thumbnail">
-                                        CLIP {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelA - Clip {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-
-
-                    <!-- ========================================
-                    Channel B
-                    ========================================= -->
-
-                    <section class="channel-content-section">
-
-                        <div class="channel-content-header">
-
-                            <a href="#" class="channel-profile-link">
-                                <span class="channel-avatar large">B</span>
-                                <span class="channel-profile-name">ExampleChannelB</span>
-                            </a>
-
-                            <a href="#" class="section-link">Tracking &amp; Data →</a>
-
-                        </div>
-
-
-                        <!-- Recent Streams -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Streams</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 5) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail">
-                                        STREAM {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelB - Stream {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 2 + i }} hours</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Recent Clips -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Clips</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 4) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail clip-thumbnail">
-                                        CLIP {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelB - Clip {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-
-
-                    <!-- ========================================
-         Channel C
-    ========================================= -->
-
-                    <section class="channel-content-section">
-
-                        <div class="channel-content-header">
-
-                            <a href="#" class="channel-profile-link">
-                                <span class="channel-avatar large">C</span>
-                                <span class="channel-profile-name">ExampleChannelC</span>
-                            </a>
-
-                            <a href="#" class="section-link">Tracking &amp; Data →</a>
-
-                        </div>
-
-
-                        <!-- Recent Streams -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Streams</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 3) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail">
-                                        STREAM {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelC - Stream {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 3 + i }} hours</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Recent Clips -->
-
-                        <div class="content-row">
-
-                            <div class="content-row-heading">
-                                <h2>Recent Clips</h2>
-                                <a href="#" class="section-link">View All →</a>
-                            </div>
-
-                            <div class="content-grid">
-
-                                {% for i in range(1, 2) %}
-                                <a href="#" class="content-card">
-
-                                    <div class="content-thumbnail clip-thumbnail">
-                                        CLIP {{ i }}
-                                    </div>
-
-                                    <div class="content-card-info">
-                                        <strong>ExampleChannelC - Clip {{ i }}</strong>
-                                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
-                                    </div>
-
-                                </a>
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-
-                </div>
-
-
-            </main>
-
-
+            <a href="#" class="section-link">Tracking &amp; Data →</a>
 
         </div>
 
-    </div>
+
+        <!-- Recent Streams -->
+
+        <div class="content-row">
+
+            <div class="content-row-heading">
+                <h2>Recent Streams</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 13) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail">
+                        STREAM {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelA - Stream {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 2 + i }} hours</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
 
 
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+        <!-- Recent Clips -->
 
-</body>
+        <div class="content-row">
 
-</html>
+            <div class="content-row-heading">
+                <h2>Recent Clips</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 11) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail clip-thumbnail">
+                        CLIP {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelA - Clip {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Channel B -->
+
+    <section class="channel-content-section">
+
+        <div class="channel-content-header">
+
+            <a href="#" class="channel-profile-link">
+                <span class="channel-avatar large">B</span>
+                <span class="channel-profile-name">ExampleChannelB</span>
+            </a>
+
+            <a href="#" class="section-link">Tracking &amp; Data →</a>
+
+        </div>
+
+
+        <!-- Recent Streams -->
+
+        <div class="content-row">
+
+            <div class="content-row-heading">
+                <h2>Recent Streams</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 5) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail">
+                        STREAM {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelB - Stream {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 2 + i }} hours</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Recent Clips -->
+
+        <div class="content-row">
+
+            <div class="content-row-heading">
+                <h2>Recent Clips</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 4) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail clip-thumbnail">
+                        CLIP {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelB - Clip {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Channel C -->
+
+    <section class="channel-content-section">
+
+        <div class="channel-content-header">
+
+            <a href="#" class="channel-profile-link">
+                <span class="channel-avatar large">C</span>
+                <span class="channel-profile-name">ExampleChannelC</span>
+            </a>
+
+            <a href="#" class="section-link">Tracking &amp; Data →</a>
+
+        </div>
+
+
+        <!-- Recent Streams -->
+
+        <div class="content-row">
+
+            <div class="content-row-heading">
+                <h2>Recent Streams</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 3) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail">
+                        STREAM {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelC - Stream {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 3 + i }} hours</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Recent Clips -->
+
+        <div class="content-row">
+
+            <div class="content-row-heading">
+                <h2>Recent Clips</h2>
+                <a href="#" class="section-link">View All →</a>
+            </div>
+
+            <div class="content-grid">
+
+                {% for i in range(1, 2) %}
+                <a href="#" class="content-card">
+
+                    <div class="content-thumbnail clip-thumbnail">
+                        CLIP {{ i }}
+                    </div>
+
+                    <div class="content-card-info">
+                        <strong>ExampleChannelC - Clip {{ i }}</strong>
+                        <span>November {{ 23 - (i - 1) }} · {{ 1 + i }} minutes</span>
+                    </div>
+
+                </a>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

@@ -199,3 +199,22 @@ def helix_request(endpoint, client_id, client_secret, params=None):
             raise RuntimeError("Could not connect to Twitch.") from error
 
     raise RuntimeError("Twitch API request failed after refreshing the access token.")
+
+
+def search_channels(query, client_id, client_secret, first=10):
+    """Search Twitch channels by name."""
+
+    if not query or not query.strip():
+        return []
+
+    response, _ = helix_request(
+        "search/channels",
+        client_id,
+        client_secret,
+        params={
+            "query": query.strip(),
+            "first": first,
+        },
+    )
+
+    return response.get("data", [])

@@ -110,17 +110,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 0
             );
 
+            const lastVisibleIndex = endpoints.reduce(
+                (lastIndex, item, index) =>
+                    item.total_requests > 0 ? index : lastIndex,
+                -1
+            );
+
             const datasets = endpoints.map((item, index) => ({
                 label: item.endpoint,
-                data: [item.total_requests],
+                data: [
+                    totalRequests > 0 && item.total_requests > 0
+                        ? Math.max(item.total_requests, totalRequests * 16 / endpointCanvas.clientWidth)
+                        : 0
+                ],
                 backgroundColor: endpointColors[item.endpoint] || "#94A3B8",
                 borderWidth: 0,
 
                 borderRadius: {
                     topLeft: index === 0 ? 16 : 0,
                     bottomLeft: index === 0 ? 16 : 0,
-                    topRight: index === endpoints.length - 1 ? 16 : 0,
-                    bottomRight: index === endpoints.length - 1 ? 16 : 0
+                    topRight: index === lastVisibleIndex ? 16 : 0,
+                    bottomRight: index === lastVisibleIndex ? 16 : 0
                 },
 
                 borderSkipped: false,
@@ -144,7 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             stacked: true,
                             display: false,
                             beginAtZero: true,
-                            max: totalRequests
+                            max: datasets.reduce(
+                                (sum, dataset) => sum + dataset.data[0],
+                                0
+                            ),
                         },
                         y: {
                             stacked: true,
@@ -201,8 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                 const rect = chart.canvas.getBoundingClientRect();
 
-                                const mouseX = rect.left + window.scrollX + endpointChartMouseX;
-                                const mouseY = rect.top + window.scrollY + endpointChartMouseY;
+                                const mouseX = rect.left + endpointChartMouseX;
+                                const mouseY = rect.top + endpointChartMouseY;
 
                                 const tooltipWidth = tooltipEl.offsetWidth;
                                 const tooltipHeight = tooltipEl.offsetHeight;
@@ -212,18 +225,18 @@ document.addEventListener("DOMContentLoaded", () => {
                                 // Keep the tooltip inside the visible page width.
                                 let left = mouseX;
 
-                                if (left + tooltipWidth / 2 > window.scrollX + window.innerWidth - margin) {
-                                    left = window.scrollX + window.innerWidth - margin - tooltipWidth / 2;
+                                if (left + tooltipWidth / 2 > window.innerWidth - margin) {
+                                    left = window.innerWidth - margin - tooltipWidth / 2;
                                 }
 
-                                if (left - tooltipWidth / 2 < window.scrollX + margin) {
-                                    left = window.scrollX + margin + tooltipWidth / 2;
+                                if (left - tooltipWidth / 2 < margin) {
+                                    left = margin + tooltipWidth / 2;
                                 }
 
                                 // Position above the cursor, unless there isn't enough room.
                                 let top = mouseY - 12;
 
-                                if (top - tooltipHeight < window.scrollY + margin) {
+                                if (top - tooltipHeight < margin) {
                                     top = mouseY + tooltipHeight + 12;
                                 }
 
@@ -235,6 +248,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
             });
+
+            // Hide the endpoint tooltip when tapping outside the chart.
+            if (!document.body.dataset.endpointTooltipDismiss) {
+                document.addEventListener("touchstart", function (event) {
+                    const tooltip = document.getElementById("endpoint-chart-tooltip");
+                    const chart = document.getElementById("usage-endpoint-chart");
+
+                    if (
+                        tooltip &&
+                        chart &&
+                        !tooltip.contains(event.target) &&
+                        !chart.contains(event.target)
+                    ) {
+                        tooltip.style.opacity = 0;
+                    }
+                }, { passive: true });
+
+                document.body.dataset.endpointTooltipDismiss = "true";
+            }
 
         } catch (error) {
             console.error("Error loading endpoint usage:", error);
@@ -422,7 +454,35 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     plugins: {
                         legend: {
-                            display: true
+                            display: true,
+                            labels: {
+                                usePointStyle: true,
+                                pointStyleWidth: 35,
+                                padding: 20,
+                                font: {
+                                    size: 16
+                                },
+                                generateLabels: function (chart) {
+                                    const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+
+                                    labels.forEach(item => {
+                                        const dataset = chart.data.datasets[item.datasetIndex];
+
+                                        if (dataset.label === "Total") {
+                                            item.pointStyle = "rect";
+                                            item.fillStyle = dataset.backgroundColor;
+                                            item.strokeStyle = dataset.backgroundColor;
+                                        } else {
+                                            item.pointStyle = "line";
+                                            item.fillStyle = "transparent";
+                                            item.strokeStyle = dataset.borderColor;
+                                            item.lineWidth = 4;
+                                        }
+                                    });
+
+                                    return labels;
+                                }
+                            }
                         },
                         tooltip: {
                             callbacks: {

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% set active_page = "channels" %}
+
+{% block title %}ArchiveTube - Channels{% endblock %}
+
+
+{% block sidebar %}
+
+<div class="sidebar-heading">
+    Channels
+</div>
+
+<nav class="sidebar-navigation">
+
+    <a href="#tracked-channels" class="sidebar-item active">
+        Channel Library
+    </a>
+
+
+</nav>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Page Heading -->
+<div class="page-heading channel-page-heading">
+    <div>
+        <h1>Channels</h1>
+        <p>Browse and manage channels in your ArchiveTube library.</p>
+    </div>
+
+    <button type="button" id="add-channel-toggle" class="control-button primary">
+        + Add Channel
+    </button>
+</div>
+
+<!-- Channel Library -->
+<section class="dashboard-section" id="channel-library">
+
+    <div class="section-heading">
+        <h2>Channel Library</h2>
+    </div>
+
+    <div class="channel-filter">
+        <label for="channel-filter">Filter channels</label>
+
+        <input type="search" id="channel-filter" class="control-input channel-search-input"
+            placeholder="Filter by channel name, game, status..." autocomplete="off">
+    </div>
+
+    <div id="channel-list">
+        <div class="empty-state">
+            <p>Your channel library is empty. Add a Twitch channel or archive content from a channel to get started.</p>
+        </div>
+    </div>
+
+</section>
+
+<!-- Add Channel Panel -->
+<!-- Add Channel Overlay -->
+<div class="channel-modal-overlay" id="add-channel" hidden>
+
+    <div class="channel-modal">
+
+        <div class="channel-modal-header">
+            <h2>Add a Channel</h2>
+
+            <button type="button" id="close-add-channel" class="control-button icon-button" aria-label="Close"
+                title="Close">
+                &times;
+            </button>
+        </div>
+
+        <p>Search Twitch for a channel to add to your ArchiveTube library.</p>
+
+        <div class="channel-add-search">
+
+            <input type="search" id="channel-twitch-search" class="control-input"
+                placeholder="Search Twitch channels..." autocomplete="off">
+
+            <button type="button" id="channel-twitch-search-button" class="control-button primary">
+                Search
+            </button>
+
+        </div>
+
+        <div id="channel-selection-preview"></div>
+        <div id="channel-search-results"></div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/channels.js') }}"></script>
+{% endblock %}
